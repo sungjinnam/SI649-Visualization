@@ -1,0 +1,276 @@
+
+<html>
+<body>
+<FORM>
+<INPUT TYPE=BUTTON NAME="switch" VALUE="switch" onclick="togglevarbs();">
+<INPUT TYPE=BUTTON NAME="ols" VALUE="toggle OLS" onclick="togglefit();">
+Include:
+   <INPUT TYPE="checkbox" name="toshow" value="type1" checked onclick="drawIt();"/> Type1
+   <INPUT TYPE="checkbox" name="toshow" value="type2" checked onclick="drawIt();"/> Type2
+   <INPUT TYPE="checkbox" name="toshow" value="type3" checked onclick="drawIt();"/> Type3
+
+</FORM>
+<canvas id="canvas" width="500" height="500"></canvas>
+<script type="text/javascript">
+
+var alldata = [{a:-0.035333333,b:-0.053333333,xtype:"type1",c:-0.08},
+	       {a:-0.127333333,b:0.277333333,xtype:"type1",c:2.81},
+	       {a:0.266,b:0.23,xtype:"type1",c:3},
+	       {a:0.374666667,b:0.350666667,xtype:"type2",c:3.73},
+	       {a:0.333333333,b:0.369333333,xtype:"type1",c:5.45},
+	       {a:0.322,b:0.4,xtype:"type1",c:5.01},
+	       {a:0.466666667,b:0.334666667,xtype:"type2",c:5.92},
+	       {a:0.605333333,b:0.461333333,xtype:"type2",c:9.35},
+	       {a:0.63,b:0.39,xtype:"type2",c:9.81},
+	       {a:0.606666667,b:0.876666667,xtype:"type3",c:9.1},
+	       {a:0.655333333,b:0.691333333,xtype:"type2",c:11.27},
+	       {a:0.872,b:0.74,xtype:"type2",c:11.82},
+	       {a:0.854666667,b:1.052666667,xtype:"type3",c:14.8},
+	       {a:0.879333333,b:0.963333333,xtype:"type3",c:13.46},
+	       {a:0.904,b:1.024,xtype:"type3",c:15.45}];
+
+// filtereddata is only the data we want to draw
+var filtereddata = alldata;
+
+// canvas and context are what we draw to
+var canvas = document.getElementById("canvas");  
+var context = canvas.getContext("2d"); 
+
+// set the default font
+context.font = "30pt Arial";
+
+// a variable we're going to use to loop
+var idx = -1;
+
+// the min and max values
+var xmax = -Number.MAX_VALUE;
+var xmin = Number.MAX_VALUE;
+
+var ymax = -Number.MAX_VALUE;
+var ymin = Number.MAX_VALUE;
+
+var cmax = -Number.MAX_VALUE;
+var cmin = Number.MAX_VALUE;
+
+var colorfunc = dummycolor
+var sizefunc = dummysize
+
+// mode decides if we should color by c and size by xtype
+// or the other way around
+var mode = true
+
+// olsdraw decides if we should draw the fit
+var olsdraw = false
+
+// calculate the min and max, we only need to
+// do this once because it never changes
+calcMinMax();
+
+// draw the initial layout
+drawScatter(filtereddata);
+
+function drawScatter(data) {
+    
+    // wipe the screen
+    clearContext();
+
+    // draw the axes
+    drawAxes();
+
+    // draw the points
+    for (idx in data) {
+	// calculate the x and y location
+        //xloc = 200;   // CHANGE ME
+        //yloc = 200;   // CHANGE ME
+	xloc = data[idx].a - xmin;
+	yloc = data[idx].b - ymin;
+
+	xloc =  (xloc)*(400/(xmax-xmin));
+	yloc =  400-(yloc)*(400/(ymax-ymin));
+
+	// draw the rectangle &  calculate the color for the object
+        if(mode){
+		sz = ~~(sizefunc(data[idx].xtype));
+		context.fillStyle = colorfunc(data[idx].c);
+	}
+	else{
+		sz = ~~(sizefunc(data[idx].c));
+		context.fillStyle = colorfunc(data[idx].xtype);
+	}
+	context.fillRect(xloc,yloc,sz,sz);
+    }
+
+    // draw the fit, if necessary
+    drawOLS(data);
+
+}
+
+function calcMinMax() {
+    // CHANGE ME
+    xmin = 0;
+    xmax = 0;
+    ymin = 0;
+    ymax = 0;
+    cmin = 0;
+    cmax = 0;
+	
+	for(i in alldata){
+		if(xmin > alldata[i].a) xmin = alldata[i].a;
+		if(xmax < alldata[i].a) xmax = alldata[i].a;
+		if(ymin > alldata[i].b) ymin = alldata[i].b;
+		if(ymax < alldata[i].b) ymax = alldata[i].b;
+		if(cmin > alldata[i].c) cmin = alldata[i].c;
+		if(cmax < alldata[i].c) cmax = alldata[i].c;
+	}
+}
+
+// filters by category
+// input: the data to filter, and an array of valid categories 
+// so valid may include things like ["type1","type2"] if those
+// are the checked variables
+// returns only those data points with a valid category
+function filterByCat(points,valid) {
+	filteredPoints=[];
+	for(i in points){
+		for(j in valid){
+			if(points[i].xtype == valid[j]) filteredPoints.push(points[i]);
+		}
+	}
+    // CHANGE ME
+    return(filteredPoints);
+}
+
+
+
+
+function drawAxes() {
+    // draw the x axes
+
+    // CHANGE ME, CALCULATE CORRECT VALUES
+    x1 = 55;
+    y1 = 0;
+    x2 = 55;
+    y2 = 400;
+
+	//xloc = data[idx].a - xmin;
+	//yloc = data[idx].b - ymin;
+
+	//xloc =  (xloc)*(400/(xmax-xmin));
+	//yloc =  400-(yloc)*(400/(ymax-ymin));
+
+    // YOU CAN LEAVE THIS PART ALONE
+    context.beginPath();
+    context.moveTo(x1, y1);
+    context.lineTo(x2, y2);
+    context.stroke();
+    context.fillStyle = "rgb(40,40,40)";  
+    context.fillText("b",x1-35,y1+30);
+
+    // CHANGE ME, CALCULATE CORRECT VALUES
+    x1 = 0;
+    y1 = 350;
+    x2 = 400;
+    y2 = 350;
+
+    // YOU CAN LEAVE THIS PART ALONE
+    context.beginPath();
+    context.moveTo(x1, y1);
+    context.lineTo(x2, y2);
+    context.stroke();
+    context.fillStyle = "rgb(40,40,40)";  
+    context.fillText("a",370,y1+30);
+}
+
+function drawOLS(data) {
+    if(olsdraw) {
+
+	// CHANGE ME
+	context.beginPath();
+	context.moveTo(0, 400);
+	context.lineTo(400, 0);
+	context.stroke();
+    }
+}
+
+
+
+// UTILITY FUNCTIONS TO HELP YOU
+// YOU SHOULDN'T NEED TO CHANGE THESE
+
+// gets toggled when the "toggle fit" button gets pressed
+function togglefit() {
+    olsdraw = !olsdraw;
+    drawScatter(filtereddata);
+}
+
+// gets toggeled when the "toggle type" button gets pressed
+function togglevarbs() {
+    if(mode) {
+        mode = false;
+    } else {
+        mode = true
+    }
+    drawScatter(filtereddata);
+}
+
+// a basic coloring function, always returns the same thing
+function dummycolor(v) {
+    //return("rgb(200,0,200)");
+	if(mode){
+		v = v-cmin;
+		v = 255 - v * (255/(cmax-cmin));
+		v = ~~v;
+		return("rgb(" + v + "," + v + "," + v + ")");
+	}
+	else{
+		if(v=="type1") return("rgb(0,0,0)");
+		else if (v=="type2") return("rgb(150, 0, 0)");
+		else return("rgb(0, 150, 0)");
+	}
+}
+
+// a basic sizing function, always returns the same thing
+function dummysize(v) {
+    //return(10);
+	if(mode){
+		if(v=="type1") return(10);
+		else if (v=="type2") return(20);
+		else return(30);
+	}
+	else{
+		cval = v - cmin;
+		cval = 10 + cval * (10/(cmax-cmin));
+		return(cval)
+	}
+}
+
+function drawIt() {
+    // figure out what's checked
+    var selected = document.forms[0]["toshow"];
+    var validcats = [];
+    for (i = 0 ; i < selected.length ; i++) {
+        if (selected[i].checked) {
+            validcats.push(selected[i].value);
+        }
+    }
+    // filter our sourcedata so we're only working with checked categories
+    filtereddata = filterByCat(alldata,validcats);
+    drawScatter(filtereddata);
+}
+
+
+function clearContext() {
+    // Store the current transformation matrix
+    context.save();
+    
+    // Use the identity matrix while clearing the canvas
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    
+        // Restore the transform
+    context.restore();
+}
+
+</script>
+</body>
+</html> 

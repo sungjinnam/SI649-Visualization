@@ -1,0 +1,58 @@
+<html>
+<body>
+<canvas id="canvas" width="200" height="400"></canvas>
+<script type="text/javascript">
+
+var salary = [{name:"A",salary:1,dept:"IT"},
+            {name:"B",salary:5,dept:"HR"},
+            {name:"C",salary:2,dept:"HR"},
+            {name:"D",salary:5,dept:"MG"},
+            {name:"E",salary:4,dept:"IT"}];
+
+var canvas = document.getElementById("canvas");  
+var context = canvas.getContext("2d"); 
+context.font = "8pt Arial";
+
+function redBlue(v) {
+   if (v.salary > 3) {
+        return("rgb(200,0,0)");
+   } else {
+        return("rgb(0,0,200)");
+  }
+}
+
+function byDept(v) {
+   if (v.dept == "IT") {
+        return("rgb(200,200,0)");
+   } else if (v.dept == "HR") {
+        return("rgb(200,0,200)");
+   } else if (v.dept = "MG") {
+        return("rgb(0,30,0)");
+   }
+}
+
+function shadeIt(v) {
+   if (v.salary > 3) {
+        return("rgb("+(v.salary*50)+",0,0)");
+   } else {
+        return("rgb(0,0,200)");
+  }
+}
+function drawBars(data,colfunc) {
+     var idx = -1;
+     for (idx in data) {
+          var val = data[idx].salary;
+          var heading = data[idx].name;
+          var color = colfunc(data[idx]);
+          //alert("setting color to: " + color + " for " + heading);
+          context.fillStyle = color;
+          context.fillRect (idx*15, 100, 10, -val*10);
+          context.fillStyle = "rgb(40,40,40)";  
+          context.fillText(heading,idx*15+2,115);
+     }
+}
+
+drawBars(salary,byDept);
+</script>
+</body>
+</html> 
